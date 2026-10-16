@@ -1,0 +1,11 @@
+name: code-spell-check
+
+on: [push, pull_request]
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - run: pip install --user codespell==2.4.3
+    - run: codespell
