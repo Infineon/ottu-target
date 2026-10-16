@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+    hooks:
+      - id: commitlint
+        name: commitlint
+        entry: npx --yes @commitlint/cli --config commitlint.config.js --edit
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
+      - id: uncrustify
+        name: uncrustify
+        entry: uncrustify -c uncrustify.cfg --replace --no-backup
+        language: system
+        files: \.(c|h)$
+        pass_filenames: true
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
