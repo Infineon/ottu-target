@@ -93,7 +93,12 @@ void ottunity_do_nothing_func(void) {
 }
 
 static void get_filename_without_ext(const char *filepath, char *filename_base) {
-    const char *filename = strrchr(filepath, '/') ? strrchr(filepath, '/') + 1 : filepath;
+    const char *filename = filepath;
+    for (const char *character = filepath; *character != '\0'; character++) {
+        if (*character == '/' || *character == '\\') {
+            filename = character + 1;
+        }
+    }
     const char *dot = strrchr(filename, '.');
     size_t len = dot ? (size_t)(dot - filename) : strlen(filename);
 
