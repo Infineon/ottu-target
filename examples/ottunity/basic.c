@@ -1,8 +1,7 @@
 #include <stdbool.h>
 #include "ottunity.h"
 
-OTTUNITY_TEST(is_null_pointer)
-{
+OTTUNITY_TEST(is_null_pointer) {
     int *ptr = NULL;
 
     TEST_ASSERT_NULL_MESSAGE(ptr, "Pointer should be null");
