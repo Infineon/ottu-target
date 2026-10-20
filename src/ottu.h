@@ -1,6 +1,10 @@
 #ifndef __OTTU_H
 #define __OTTU_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef OTTU_SERIAL_INTF_BAUDRATE
 #define OTTU_SERIAL_INTF_BAUDRATE 115200
 #endif
@@ -39,6 +43,10 @@
 #ifndef OTTU_TEST_FRAME_END
 #define OTTU_TEST_FRAME_END ""
 #endif
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __OTTU_H */
