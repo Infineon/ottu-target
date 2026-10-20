@@ -20,19 +20,19 @@ extern "C" {
 
 #ifndef OTTU_TEST_FRAME_START
 #ifndef OTTU_TEST_FRAME_TOKEN
-#define OTTU_TEST_FRAME_START "=== ottu begin ==="
+#define OTTU_TEST_FRAME_START "\r\n=== ottu begin ===\r\n"
 #else
 #define OTTU_TEST_FRAME_START \
-    "=== ottu begin " OTTU_STRINGIFY(OTTU_TEST_FRAME_TOKEN) " ==="
+    "\r\n=== ottu begin " OTTU_STRINGIFY(OTTU_TEST_FRAME_TOKEN) " ===\r\n"
 #endif
 #endif
 
 #ifndef OTTU_TEST_FRAME_END
 #ifndef OTTU_TEST_FRAME_TOKEN
-#define OTTU_TEST_FRAME_END "=== ottu end ==="
+#define OTTU_TEST_FRAME_END "\r\n=== ottu end ===\r\n"
 #else
 #define OTTU_TEST_FRAME_END \
-    "=== ottu end " OTTU_STRINGIFY(OTTU_TEST_FRAME_TOKEN) " ==="
+    "\r\n=== ottu end " OTTU_STRINGIFY(OTTU_TEST_FRAME_TOKEN) " ===\r\n"
 #endif
 #endif
 
