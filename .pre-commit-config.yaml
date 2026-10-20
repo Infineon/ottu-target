@@ -11,7 +11,7 @@ repos:
         name: uncrustify
         entry: uncrustify -c uncrustify.cfg --replace --no-backup
         language: system
-        files: \.(c|h)$
+        files: ^(src|examples)/.*\.(c|h)$
         pass_filenames: true
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
