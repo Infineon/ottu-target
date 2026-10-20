@@ -140,3 +140,36 @@ target_include_directories(unity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 For non-CMake builds, add `-DUNITY_INCLUDE_CONFIG_H` and the directory
 containing `unity_config.h` to the compiler include paths. The exact UART
 initialization and transmit functions depend on the embedded platform.
+
+### Framed test output
+
+The `ottu.h` header provides `OTTU_TEST_FRAME_START` and
+`OTTU_TEST_FRAME_END` string macros for marking the boundaries of a test run.
+Framing is enabled by default, and the default marker lines are:
+
+```text
+=== ottu begin ===
+...
+=== ottu end ===
+```
+
+The test application prints these markers around the Unity output. A host can
+ignore serial data until it reads the begin marker, then collect output through
+the matching end marker.
+
+To add a build-time token to both markers, pass it to the compiler as a
+preprocessor definition. For example, in a CMake-based toolchain:
+
+```cmake
+target_compile_definitions(my_test_target PRIVATE OTTU_TEST_FRAME_TOKEN=42)
+```
+
+This produces `=== ottu begin 42 ===` and `=== ottu end 42 ===`. The token is
+compiled into the firmware and is not generated separately for each run. If
+the token is not defined, the markers omit it.
+
+Framing is enabled by default. To disable it for a target, add:
+
+```cmake
+target_compile_definitions(my_test_target PRIVATE OTTU_FRAMED_OUTPUT_ENABLED=0)
+```
