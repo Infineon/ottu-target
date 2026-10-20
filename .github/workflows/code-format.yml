@@ -14,5 +14,7 @@ jobs:
 
       - name: Check C and header formatting
         run: |
-          git ls-files -z -- '*.c' '*.h' |
+          git ls-files -z -- \
+            ':(glob)src/**/*.c' ':(glob)src/**/*.h' \
+            ':(glob)examples/**/*.c' ':(glob)examples/**/*.h' |
             xargs -0 uncrustify -c uncrustify.cfg --check
