@@ -177,7 +177,7 @@ Clang-compatible toolchain that supports `__attribute__((constructor))`.
 
 ottunity builds on the Unity fixture, so the fixture's test concepts still
 apply. These ottunity macros provide the corresponding group, test, and
-setup/teardown declarations. See the [Unity fixture documentation](libs/unity/extras/fixture/readme.md)
+setup/teardown declarations. See the [Unity Fixture documentation](https://github.com/ThrowTheSwitch/Unity/blob/master/extras/fixture/readme.md)
 for its usage model:
 
 | Unity fixture macro | ottunity macro | Relationship |
