@@ -6,24 +6,32 @@
 It currently provides a [Unity](https://github.com/ThrowTheSwitch/Unity)-based
 test fixture through `ottunity`. The
 fixture simplifies test creation with support macros, so tests do not need to
-define groups or test runners explicitly.
+define groups or test runners explicitly (see
+[ottunity versus Unity fixture](#ottunity-versus-unity-fixture)).
 
-## Build
+## ottunity API reference
 
-Clone the repository with its Unity dependency:
+The public macros are defined in [`ottunity.h`](src/ottunity/ottunity.h).
+Use the basic API when a test file needs only the default group, or the group
+API when tests need explicit grouping or group-specific setup and teardown.
 
-```sh
-git clone --recurse-submodules https://github.com/Infineon/ottu-target.git
-cd ottu-target
-cmake -S . -B build
-cmake --build build
-```
+| Macro | Responsibility |
+| --- | --- |
+| `OTTUNITY_TEST(name)` | Declares a test in the automatic group. |
+| `OTTUNITY_TEST_SETUP()` / `OTTUNITY_TEST_TEAR_DOWN()` | Define setup or teardown for the automatic group. Both are optional; an empty function is used when omitted. |
+| `OTTUNITY_RUN()` | Defines the test executable's `main()` and runs the suite. Use once per test executable. The default implementation calls `OTTUNITY_ENV_SETUP()` before the suite runner. |
+| `OTTUNITY_GROUP(group)` | Declares and registers an explicit test group. |
+| `OTTUNITY_GROUP_TEST(group, name)` | Declares a test in an explicit group. |
+| `OTTUNITY_GROUP_TEST_SETUP(group)` / `OTTUNITY_GROUP_TEST_TEAR_DOWN(group)` | Define optional setup or teardown for an explicit group. |
 
-Examples are built by default. Disable them with:
+The automatic group is named from the source file containing
+`OTTUNITY_RUN()`. For a basic test file, declare tests and include one
+`OTTUNITY_RUN()` call; add groups or setup and teardown functions only when
+needed.
 
-```sh
-cmake -S . -B build -DOTTU_BUILD_EXAMPLES=OFF
-```
+Assertions such as `TEST_ASSERT_TRUE` are provided by Unity, not ottunity.
+See the [Unity Assertions Reference](https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md)
+for the available assertion macros and their behavior.
 
 ## Example
 
@@ -33,44 +41,12 @@ Include `ottunity.h`, define tests with `OTTUNITY_TEST`, and add
 ```c
 #include "ottunity.h"
 
-OTTUNITY_TEST(is_true)
-{
+OTTUNITY_TEST(is_true) {
     TEST_ASSERT_TRUE(1);
 }
 
 OTTUNITY_RUN();
 ```
-
-Link the test executable against the `ottunity` CMake target.
-
-## Toolchain requirements
-
-OTTUNITY automatically registers groups, tests, setup functions, and teardown
-functions through compiler constructor attributes. Use a GCC- or
-Clang-compatible toolchain that supports `__attribute__((constructor))`.
-
-## OTTUNITY macro responsibilities
-
-OTTUNITY provides defaults for the parts of a test that do not need custom
-behavior. Compared with using the Unity fixture directly, this removes the
-boilerplate required to create groups, register tests, define test runners,
-and provide empty setup or teardown functions. Tests can focus on their test
-body while OTTUNITY handles registration and execution through
-`OTTUNITY_RUN()`. Unity assertions and the underlying Unity test fixture
-remain available.
-
-| Macro or definition | Required? | Responsibility |
-| --- | --- | --- |
-| `OTTUNITY_TEST(name)` | Yes, for each test | Declares a test and registers it with the automatic group. |
-| `OTTUNITY_RUN()` | Yes, once per test executable | Starts the test suite. |
-| `OTTUNITY_GROUP(group)` | Optional | Declares an explicit group. If it is omitted, `OTTUNITY_TEST()` uses the automatic group. |
-| `OTTUNITY_TEST_SETUP()` / `OTTUNITY_GROUP_TEST_SETUP(group)` | Optional | Defines setup code. If omitted, OTTUNITY uses an empty setup function. |
-| `OTTUNITY_TEST_TEAR_DOWN()` / `OTTUNITY_GROUP_TEST_TEAR_DOWN(group)` | Optional | Defines teardown code. If omitted, OTTUNITY uses an empty teardown function. |
-| Test runner definition | Not required | OTTUNITY creates and registers the runner for each test declared with `OTTUNITY_TEST()` or `OTTUNITY_GROUP_TEST()`. |
-
-For a basic test file, only the test declarations and one `OTTUNITY_RUN()`
-call are needed. Explicit groups, setup, and teardown functions are only
-needed when the test suite requires them.
 
 ## Configuration
 
@@ -173,3 +149,48 @@ Framing is enabled by default. To disable it for a target, add:
 ```cmake
 target_compile_definitions(my_test_target PRIVATE OTTU_FRAMED_OUTPUT_ENABLED=0)
 ```
+
+## Build
+
+Clone the repository with its Unity dependency:
+
+```sh
+git clone --recurse-submodules https://github.com/Infineon/ottu-target.git
+cd ottu-target
+cmake -S . -B build
+cmake --build build
+```
+
+Examples are built by default. Disable them with:
+
+```sh
+cmake -S . -B build -DOTTU_BUILD_EXAMPLES=OFF
+```
+
+## Toolchain requirements
+
+ottunity automatically registers groups, tests, setup functions, and teardown
+functions through compiler constructor attributes. Use a GCC- or
+Clang-compatible toolchain that supports `__attribute__((constructor))`.
+
+## ottunity versus Unity fixture
+
+ottunity builds on the Unity fixture, so the fixture's test concepts still
+apply. These ottunity macros provide the corresponding group, test, and
+setup/teardown declarations. See the [Unity fixture documentation](libs/unity/extras/fixture/readme.md)
+for its usage model:
+
+| Unity fixture macro | ottunity macro | Relationship |
+| --- | --- | --- |
+| `TEST_GROUP(group)` | `OTTUNITY_GROUP(group)` | Declares a group. ottunity also registers it with the suite. |
+| `TEST_SETUP(group)` / `TEST_TEAR_DOWN(group)` | `OTTUNITY_GROUP_TEST_SETUP(group)` / `OTTUNITY_GROUP_TEST_TEAR_DOWN(group)` | Define group setup or teardown. ottunity supplies no-op defaults when these are omitted. |
+| `TEST(group, name)` | `OTTUNITY_GROUP_TEST(group, name)` | Declares the test body. ottunity also registers the test and creates its runner. |
+
+For tests in the automatic group, `OTTUNITY_TEST(name)` and its setup/teardown
+macros are the shorthand forms; no explicit group declaration is needed.
+
+When using ottunity, you do not need to write the Unity Fixture's
+`TEST_GROUP_RUNNER` and `RUN_TEST_CASE` calls to enumerate tests, or call
+`RUN_TEST_GROUP` from a manually defined `main()`. ottunity registers tests
+automatically and `OTTUNITY_RUN()` supplies the default entry point and suite
+execution. Unity assertions remain available unchanged.
